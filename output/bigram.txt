@@ -1,0 +1,68 @@
+Loaded 32033 names from data/names.txt
+Vocabulary size: 27
+xs shape: torch.Size([228146, 1]), ys shape: torch.Size([228146])
+First 10 examples:
+. => e 	stoi: tensor([0]) => 5
+e => m 	stoi: tensor([5]) => 13
+m => m 	stoi: tensor([13]) => 13
+m => a 	stoi: tensor([13]) => 1
+a => . 	stoi: tensor([1]) => 0
+. => o 	stoi: tensor([0]) => 15
+o => l 	stoi: tensor([15]) => 12
+l => i 	stoi: tensor([12]) => 9
+i => v 	stoi: tensor([9]) => 22
+v => i 	stoi: tensor([22]) => 9
+
+Training loop:
+Epoch 0, Loss: 3.7296
+Epoch 20, Loss: 2.5713
+Epoch 40, Loss: 2.4714
+Epoch 60, Loss: 2.4600
+Epoch 80, Loss: 2.4576
+Epoch 100, Loss: 2.4567
+Epoch 120, Loss: 2.4562
+Epoch 140, Loss: 2.4558
+Epoch 160, Loss: 2.4555
+Epoch 180, Loss: 2.4553
+
+Generated names:
+stawlled
+kely
+le
+kamistie
+oxiressaber
+amevi
+aniyl
+mipronesa
+tanenn
+ydedylyaylaynaiori
+
+Next character probabilities after 'n':
+P(n => .) = 0.3661
+P(n => a) = 0.1619
+P(n => b) = 0.0008
+P(n => c) = 0.0116
+P(n => d) = 0.0383
+P(n => e) = 0.0739
+P(n => f) = 0.0013
+P(n => g) = 0.0149
+P(n => h) = 0.0024
+P(n => i) = 0.0938
+P(n => j) = 0.0026
+P(n => k) = 0.0032
+P(n => l) = 0.0106
+P(n => m) = 0.0011
+P(n => n) = 0.1036
+P(n => o) = 0.0271
+P(n => p) = 0.0005
+P(n => q) = 0.0014
+P(n => r) = 0.0024
+P(n => s) = 0.0152
+P(n => t) = 0.0242
+P(n => u) = 0.0055
+P(n => v) = 0.0030
+P(n => w) = 0.0007
+P(n => x) = 0.0008
+P(n => y) = 0.0254
+P(n => z) = 0.0079
+Total probability: 1.0000
