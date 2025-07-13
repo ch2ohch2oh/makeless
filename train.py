@@ -11,6 +11,22 @@ def load_names(file_path="data/names.txt"):
     return names
 
 
+def create_train_set(text, stoi):
+    xs, ys = [], []
+    for i in range(len(text) - 1):
+        x_char = text[i]
+        y_char = text[i + 1]
+        xs.append(stoi[x_char])
+        ys.append(stoi[y_char])
+    x = torch.tensor(xs)  # input chars
+    y = torch.tensor(ys)  # target chars
+    print(f"Created training set with {x.shape[0]} examples")
+    print("First 10 examples:")
+    for i in range(10):
+        print(f"{text[i]} =>{text[i + 1]}      stoi: {xs[i]:2d} => {ys[i]}")
+    return x, y
+
+
 def train_bigram_model():
     SEP = "."
 
@@ -22,18 +38,9 @@ def train_bigram_model():
     vocab_size = len(stoi)
     assert vocab_size == 27
 
-    xs, ys = [], []
     text = SEP.join(names)
-    for i in range(len(text) - 1):
-        x_char = text[i]
-        y_char = text[i + 1]
-        xs.append(stoi[x_char])
-        ys.append(stoi[y_char])
 
-    x = torch.tensor(xs)  # input chars
-    y = torch.tensor(ys)  # target chars
-    print(f"Input tensor shape: {x.shape}, Target tensor shape: {y.shape}")
-    print(f"x[:10]: {x[:10]}\ny[:10]: {y[:10]}")
+    x, y = create_train_set(text, stoi)
 
     model = BigramNameModel(vocab_size)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.1)
