@@ -47,14 +47,14 @@ def train_bigram_model():
 
     text = SEP.join(names)
 
-    x, y = create_train_set(text, stoi)
+    xs, ys = create_train_set(text, stoi)
 
     model = BigramNameModel(vocab_size)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.1)
 
     print("\nTraining loop:")
     for epoch in range(200):
-        logits, loss = model(x, y)
+        logits, loss = model(xs, ys)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
