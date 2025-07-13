@@ -25,7 +25,7 @@ class BigramNameModel(nn.Module):
         return "".join(itos[ix] for ix in result[1:-1])  # remove start/end
 
 
-def load_names(file_path="names.txt"):
+def load_names(file_path="data/names.txt"):
     with open(file_path, "r") as f:
         names = f.read().split()
     print(f"Loaded {len(names)} names from {file_path}")
@@ -73,13 +73,13 @@ if __name__ == "__main__":
         print(model.generate())
 
     # Print next char probabilities for a given input char
-    input_char = "a"
+    input_char = "."
     input_ix = torch.tensor([stoi[input_char]])
     logits = model.embed(input_ix)
+    probs = F.softmax(logits, dim=-1)
     total_prob = 0.0
     print(f"\nNext character probabilities after '{input_char}':")
     for next_char in chars:
-        probs = F.softmax(logits, dim=-1)
         next_ix = stoi[next_char]
         prob = probs[0, next_ix].item()
         total_prob += prob
