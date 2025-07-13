@@ -27,16 +27,23 @@ def create_train_set(text, stoi):
     return x, y
 
 
+def create_vocab(names, sep_char="."):
+    chars = [sep_char] + sorted(set("".join(names)))
+    stoi = {ch: i for i, ch in enumerate(chars)}
+    itos = {i: ch for ch, i in stoi.items()}
+    vocab_size = len(stoi)
+    assert vocab_size == 27, f"Expected vocab size 27, got {vocab_size}"
+    print(f"Vocabulary size: {vocab_size}")
+    return chars, stoi, itos
+
+
 def train_bigram_model():
     SEP = "."
 
     names = load_names()
 
-    chars = [SEP] + sorted(set("".join(names)))
-    stoi = {ch: i for i, ch in enumerate(chars)}
-    itos = {i: ch for ch, i in stoi.items()}
+    chars, stoi, itos = create_vocab(names, sep_char=SEP)
     vocab_size = len(stoi)
-    assert vocab_size == 27
 
     text = SEP.join(names)
 
