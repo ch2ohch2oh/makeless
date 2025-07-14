@@ -1,4 +1,5 @@
 import random
+import click
 
 import torch
 import torch.nn.functional as F
@@ -52,6 +53,12 @@ def create_vocab(names, sep_char="."):
     return chars, stoi, itos
 
 
+@click.group()
+def cli():
+    pass
+
+
+@cli.command(name="bigram")
 def train_bigram_model():
     SEP = "."
 
@@ -97,6 +104,7 @@ def train_bigram_model():
     assert abs(total_prob - 1.0) < 1e-4, "Probabilities do not sum to 1!"
 
 
+@cli.command(name="mlp")
 def train_mlp_model():
     SEP = "."
 
@@ -175,4 +183,4 @@ def train_mlp_model():
 
 
 if __name__ == "__main__":
-    train_mlp_model()
+    cli()
