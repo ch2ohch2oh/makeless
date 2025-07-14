@@ -105,7 +105,10 @@ def train_bigram_model():
 
 
 @cli.command(name="mlp")
-def train_mlp_model():
+@click.option("--context_length", default=5, type=int)
+@click.option("--hidden_size", default=20, type=int)
+@click.option("--embed_dim", default=10, type=int)
+def train_mlp_model(context_length, hidden_size, embed_dim):
     SEP = "."
 
     names = load_names()
@@ -118,8 +121,6 @@ def train_mlp_model():
 
     vocab, stoi, itos = create_vocab(names, sep_char=SEP)
 
-    context_length = 5
-
     train_xs, train_ys = create_xs_and_ys(
         train_names, sep=SEP, context_length=context_length, stoi=stoi
     )
@@ -129,8 +130,8 @@ def train_mlp_model():
     model = MLPNameModel(
         vocab_size=len(stoi),
         context_length=context_length,
-        embed_dim=10,
-        hidden_size=20,
+        embed_dim=embed_dim,
+        hidden_size=hidden_size,
     )
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.01)
 
@@ -148,7 +149,7 @@ def train_mlp_model():
         for batch_idx in range(num_batches):
             xb = train_xs[batch_idx * batch_size : (batch_idx + 1) * batch_size]
             yb = train_ys[batch_idx * batch_size : (batch_idx + 1) * batch_size]
-            logits, loss = model(xb, yb)
+            _, loss = model(xb, yb)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -177,7 +178,9 @@ def train_mlp_model():
     plt.legend(["Train Loss", "Val Loss"])
     plt.ylabel("Loss")
     plt.xlabel("Epochs")
-    plt.title("Training Loss over time")
+    plt.title(
+        f"MLP[context_length={context_length}, embed_dim={embed_dim}, hidden_size={hidden_size}]\nLoss Curve"
+    )
     # plt.show()
     plt.savefig("plots/mlp_loss_plot.png")
 

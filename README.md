@@ -15,4 +15,19 @@ the matrix will be extremely sparse.
 MLP model use the embeddings of previous words in the context to predict the next word
 using a feedforward neural network.
 
-[mlp_loss](plots/mlp_loss_plot.png)
+![mlp_loss](plots/mlp_loss_plot.png)
+
+The generated names are much better than bigram model when `context_length >= 5`.
+
+```txt
+dannatis
+hannasiany
+geleyyah
+aston
+erelin
+varri
+reprenel
+sinylee
+melan
+randrex
+```
