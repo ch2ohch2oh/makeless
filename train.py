@@ -1,6 +1,5 @@
 import random
 
-import matplotlib
 import torch
 import torch.nn.functional as F
 
@@ -9,7 +8,6 @@ from mlp import MLPNameModel
 
 import matplotlib.pyplot as plt
 
-# matplotlib.use("Agg")
 
 random.seed(42)
 
@@ -21,9 +19,9 @@ def load_names(file_path="data/names.txt"):
     return names
 
 
-def create_train_set(names, sep=".", context_length=1, stoi=None):
+def create_xs_and_ys(names, sep=".", context_length=1, stoi=None):
     assert stoi is not None, "stoi must be provided"
-    print(f"Creating training set with context length={context_length} sep='{sep}'")
+    print(f"Creating xs and ys with context length={context_length} sep='{sep}'")
     x_chars, y_chars = [], []
     for name in names:
         name = name + sep
@@ -64,11 +62,11 @@ def train_bigram_model():
     chars, stoi, itos = create_vocab(names, sep_char=SEP)
     vocab_size = len(stoi)
 
-    xs, ys = create_train_set(names, sep=SEP, context_length=1, stoi=stoi)
+    xs, ys = create_xs_and_ys(names, sep=SEP, context_length=1, stoi=stoi)
     xs = xs.squeeze(-1)
 
     model = BigramNameModel(vocab_size)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=0.1)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.001)
 
     print("\nTraining loop:")
     for epoch in range(200):
@@ -110,43 +108,52 @@ def train_mlp_model():
     val_names = names[num_train:]
     print(f"Train names: {len(train_names)}, Val names: {len(val_names)}")
 
-    chars, stoi, itos = create_vocab(train_names, sep_char=SEP)
+    vocab, stoi, itos = create_vocab(names, sep_char=SEP)
 
-    context_length = 3
+    context_length = 5
 
-    xs, ys = create_train_set(names, sep=SEP, context_length=context_length, stoi=stoi)
-
+    train_xs, train_ys = create_xs_and_ys(
+        train_names, sep=SEP, context_length=context_length, stoi=stoi
+    )
+    val_xs, val_ys = create_xs_and_ys(
+        val_names, sep=SEP, context_length=context_length, stoi=stoi
+    )
     model = MLPNameModel(
         vocab_size=len(stoi),
         context_length=context_length,
-        embed_dim=2,
-        hidden_size=50,
+        embed_dim=10,
+        hidden_size=20,
     )
-    optimizer = torch.optim.AdamW(model.parameters(), lr=0.1)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.01)
 
-    batch_size = 100
+    batch_size = 256
 
     print("\nTraining loop:")
-    loss_history = []
-    for batch_idx in range(2000):
-        batch_indices = torch.randint(0, xs.shape[0], (batch_size,))
-        xb = xs[batch_indices]
-        yb = ys[batch_indices]
-        logits, loss = model(xb, yb)
-        loss_history.append(loss.item())
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        if batch_idx % 20 == 0:
-            print(f"Batch {batch_idx}, Loss: {loss.item():.4f}")
-
-    plt.figure(figsize=(8, 6))
-    plt.plot(loss_history)
-    plt.xlabel("Batch Index")
-    plt.ylabel(loss_history)
-    plt.title("Training Loss over Batches")
-    plt.show()
-    # plt.savefig("mlp_loss_plot.png")
+    train_loss_history = []
+    val_loss_history = []
+    epoch_history = []
+    num_batches = train_xs.shape[0] // batch_size
+    print(
+        f"Total training examples: {train_xs.shape[0]}, Batches per epoch: {num_batches}"
+    )
+    for epoch in range(5):
+        for batch_idx in range(num_batches):
+            xb = train_xs[batch_idx * batch_size : (batch_idx + 1) * batch_size]
+            yb = train_ys[batch_idx * batch_size : (batch_idx + 1) * batch_size]
+            logits, loss = model(xb, yb)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            if batch_idx % 20 == 0:
+                epoch_history.append(epoch + batch_idx / num_batches)
+                train_loss_history.append(loss.item())
+                with torch.no_grad():
+                    _, val_loss = model(val_xs, val_ys)
+                    val_loss_history.append(val_loss.item())
+                    # print(
+                    #     f"Epoch {epoch + 1} batch {batch_idx + 1}. "
+                    #     f"Train loss: {train_loss_history[-1]:.4f}, Val loss: {val_loss_history[-1]:.4f}"
+                    # )
 
     print("\nGenerated names:")
     for _ in range(10):
@@ -155,6 +162,16 @@ def train_mlp_model():
                 start_context=SEP * context_length, max_len=20, stoi=stoi, itos=itos
             )
         )
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(epoch_history, train_loss_history)
+    plt.plot(epoch_history, val_loss_history)
+    plt.legend(["Train Loss", "Val Loss"])
+    plt.ylabel("Loss")
+    plt.xlabel("Epochs")
+    plt.title("Training Loss over time")
+    # plt.show()
+    plt.savefig("plots/mlp_loss_plot.png")
 
 
 if __name__ == "__main__":
