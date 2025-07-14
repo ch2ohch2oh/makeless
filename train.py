@@ -108,7 +108,7 @@ def train_bigram_model():
 @click.option("--context_length", default=5, type=int)
 @click.option("--hidden_size", default=20, type=int)
 @click.option("--embed_dim", default=10, type=int)
-def train_mlp_model(context_length, hidden_size, embed_dim):
+def train_mlp_model(context_length, hidden_size, embed_dim, batch_size=256):
     SEP = "."
 
     names = load_names()
@@ -119,7 +119,7 @@ def train_mlp_model(context_length, hidden_size, embed_dim):
     val_names = names[num_train:]
     print(f"Train names: {len(train_names)}, Val names: {len(val_names)}")
 
-    vocab, stoi, itos = create_vocab(names, sep_char=SEP)
+    _, stoi, itos = create_vocab(names, sep_char=SEP)
 
     train_xs, train_ys = create_xs_and_ys(
         train_names, sep=SEP, context_length=context_length, stoi=stoi
@@ -134,8 +134,6 @@ def train_mlp_model(context_length, hidden_size, embed_dim):
         hidden_size=hidden_size,
     )
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.01)
-
-    batch_size = 256
 
     print("\nTraining loop:")
     train_loss_history = []
